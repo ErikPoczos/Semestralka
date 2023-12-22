@@ -1,44 +1,54 @@
 const ball = document.getElementById('ball');
-        const gameContainer = document.getElementById('game-container');
+const gameContainer = document.getElementById('game-container');
 
-        let ballX = 0;
-        let ballY = 0;
-        const ballSpeed = 5;
+let ballX = 0;
+let ballY = 0;
+const ballSpeed = 5;
 
-        const keys = {
-            w: false,
-            s: false,
-            a: false,
-            d: false,
-        };
+const keys = {
+    w: false,
+    s: false,
+    a: false,
+    d: false,
+};
 
-        function updateBallPosition() {
-            ball.style.transform = `translate(${ballX}px, ${ballY}px)`;
-        }
+function updateBallPosition() {
+    ball.style.transform = `translate(${ballX}px, ${ballY}px)`;
+}
 
-        function handleKeydown(event) {
-            keys[event.key] = true;
-        }
+function handleKeydown(event) {
+    keys[event.key] = true;
+}
 
-        function handleKeyup(event) {
-            keys[event.key] = false;
-        }
+function handleKeyup(event) {
+    keys[event.key] = false;
+}
 
-        function moveBall() {
-            if (keys['w']) ballY -= ballSpeed;
-            if (keys['s']) ballY += ballSpeed;
-            if (keys['a']) ballX -= ballSpeed;
-            if (keys['d']) ballX += ballSpeed;
+function moveBall() {
+    if (keys['w']) ballY -= ballSpeed;
+    if (keys['s']) ballY += ballSpeed;
+    if (keys['a']) ballX -= ballSpeed;
+    if (keys['d']) ballX += ballSpeed;
 
-            // Ensure the ball stays within the game container
-            ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
-            ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+    // Ensure the ball stays within the game container
+    ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
+    ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
 
-            updateBallPosition();
-        }
+    updateBallPosition();
+}
 
-        document.addEventListener('keydown', handleKeydown);
-        document.addEventListener('keyup', handleKeyup);
+document.addEventListener('keydown', handleKeydown);
+document.addEventListener('keyup', handleKeyup);
 
-        // Update ball position continuously
-        setInterval(moveBall, 16); // Adjust the interval as needed
+// Update ball position continuously
+setInterval(moveBall, 16); // Adjust the interval as needed
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+        .then(function(registration) {
+        console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(function(error) {
+        console.error('Service Worker registration failed:', error);
+        });
+    }

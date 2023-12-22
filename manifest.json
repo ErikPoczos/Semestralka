@@ -1,0 +1,17 @@
+{
+    "name": "Rolling Ball Game",
+    "short_name": "BallGame",
+    "description": "A simple ball rolling game",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f0f0f0",
+    "theme_color": "#3498db",
+    "icons": [
+      {
+        "src": "images/icon.png",
+        "sizes": "256x256",
+        "type": "image/png"
+      }
+    ]
+  }
+  
