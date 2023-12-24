@@ -1,0 +1,40 @@
+{
+    "levels": [
+      {
+        "name": "Level 1",
+        "obstacles": [
+          {"x": 100, "y": 100, "width": 50, "height": 50},
+          {"x": 200, "y": 200, "width": 30, "height": 30}
+        ]
+      },
+      {
+        "name": "Level 2",
+        "obstacles": [
+          {"x": 50, "y": 150, "width": 40, "height": 40},
+          {"x": 250, "y": 100, "width": 60, "height": 60}
+        ]
+      },
+      {
+        "name": "Level 3",
+        "obstacles": [
+          {"x": 50, "y": 50, "width": 80, "height": 80},
+          {"x": 200, "y": 200, "width": 50, "height": 50}
+        ]
+      },
+      {
+        "name": "Level 4",
+        "obstacles": [
+          {"x": 100, "y": 100, "width": 70, "height": 70},
+          {"x": 300, "y": 150, "width": 40, "height": 40}
+        ]
+      },
+      {
+        "name": "Level 5",
+        "obstacles": [
+          {"x": 150, "y": 150, "width": 60, "height": 60},
+          {"x": 250, "y": 50, "width": 50, "height": 50}
+        ]
+      }
+    ]
+  }
+  

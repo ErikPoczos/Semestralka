@@ -1,6 +1,6 @@
 const ball = document.getElementById('ball');
 const gameContainer = document.getElementById('game-container');
-const obstacle = document.getElementById('obstacle');
+let obstacles = [];
 
 // Set the initial position of the ball to the center of the game container
 let ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
@@ -9,9 +9,9 @@ let ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
 let ballSpeedX = 0;
 let ballSpeedY = 0;
 
-const acceleration = 0.2;   //higher number higher speed
-const maxSpeed = 20;        //max speed
-const deceleration = 0.02;  //inertia
+const acceleration = 0.2;
+const maxSpeed = 20;
+const deceleration = 0.01;
 
 const keys = {
     w: false,
@@ -32,16 +32,21 @@ function handleKeyup(event) {
     keys[event.key] = false;
 }
 
-function checkCollision() {
+function checkCollisions() {
     const ballRect = ball.getBoundingClientRect();
-    const obstacleRect = obstacle.getBoundingClientRect();
 
-    return (
-        ballRect.left < obstacleRect.right &&
-        ballRect.right > obstacleRect.left &&
-        ballRect.top < obstacleRect.bottom &&
-        ballRect.bottom > obstacleRect.top
-    );
+    obstacles.forEach(obstacle => {
+        const obstacleRect = obstacle.getBoundingClientRect();
+
+        if (
+            ballRect.left < obstacleRect.right &&
+            ballRect.right > obstacleRect.left &&
+            ballRect.top < obstacleRect.bottom &&
+            ballRect.bottom > obstacleRect.top
+        ) {
+            handleCollision();
+        }
+    });
 }
 
 function moveBall() {
@@ -70,21 +75,8 @@ function moveBall() {
     ballX += ballSpeedX;
     ballY += ballSpeedY;
 
-    if (checkCollision()) {
-        // Adjust the ball's position to avoid overlap with the obstacle
-        ballX -= 2 * ballSpeedX;
-        ballY -= 2 * ballSpeedY;
-
-        // Invert the ball's speed components to simulate a bounce effect
-        ballSpeedX = -ballSpeedX;
-        ballSpeedY = -ballSpeedY;
-
-        // Optionally, reduce the bounce effect by applying deceleration
-        ballSpeedX *= 1 - deceleration;
-        ballSpeedY *= 1 - deceleration;
-
-        updateBallPosition();
-        console.log('Collision with obstacle detected!');
+    if (checkCollisions()) {
+        
     } else {
         ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
         ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
@@ -93,6 +85,55 @@ function moveBall() {
     }
 }
 
+function handleCollision() {
+    ballX -= 2 * ballSpeedX;
+    ballY -= 2 * ballSpeedY;
+
+    ballSpeedX = -ballSpeedX;
+    ballSpeedY = -ballSpeedY;
+
+    ballSpeedX *= 1 - deceleration;
+    ballSpeedY *= 1 - deceleration;
+
+    updateBallPosition();
+    console.log('Collision with obstacle detected!');
+}
+
+// Function to create obstacle element
+function createObstacle(obstacleData) {
+    const newObstacle = document.createElement('div');
+    newObstacle.className = 'obstacle';
+
+    newObstacle.style.left = obstacleData.x + 'px';
+    newObstacle.style.top = obstacleData.y + 'px';
+    newObstacle.style.width = obstacleData.width + 'px';
+    newObstacle.style.height = obstacleData.height + 'px';
+
+    gameContainer.appendChild(newObstacle);
+    obstacles.push(newObstacle);
+    console.log('Obstacle created:', obstacleData);
+}
+
+// Function to load obstacles for a specific level
+function loadObstacles(levelIndex) {
+    fetch('jsons/levels.json')
+        .then(response => response.json())
+        .then(obstaclesData => {
+            const level = obstaclesData.levels[levelIndex];
+
+            if (level && level.obstacles) {
+                level.obstacles.forEach((obstacleData) => {
+                    createObstacle(obstacleData);
+                });
+            } else {
+                console.error('Invalid level or obstacle data:', level);
+            }
+            console.log(obstaclesData);
+        })
+        .catch(error => console.error('Error loading obstacles:', error));
+}
+
+loadObstacles(0);
 
 document.addEventListener('keydown', handleKeydown);
 document.addEventListener('keyup', handleKeyup);
