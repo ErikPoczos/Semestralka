@@ -1,8 +1,10 @@
 const ball = document.getElementById('ball');
 const gameContainer = document.getElementById('game-container');
 
-let ballX = 0;
-let ballY = 0;
+// Set the initial position of the ball to the center of the game container
+let ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
+let ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
+
 let ballSpeedX = 0;
 let ballSpeedY = 0;
 const acceleration = 0.2; // Acceleration factor
