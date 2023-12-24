@@ -25,3 +25,12 @@ body {
     border-radius: 50%;
     cursor: pointer;
 }
+
+#obstacle {
+    position: absolute;
+    width: 30%; /* Adjust the width of the obstacle as needed */
+    height: 10%; /* Adjust the height of the obstacle as needed */
+    background-color: #e74c3c;
+    top: 20%; /* Adjust the top position of the obstacle as needed */
+    left: 20%; /* Adjust the left position of the obstacle as needed */
+}

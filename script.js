@@ -1,5 +1,6 @@
 const ball = document.getElementById('ball');
 const gameContainer = document.getElementById('game-container');
+const obstacle = document.getElementById('obstacle');
 
 // Set the initial position of the ball to the center of the game container
 let ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
@@ -7,10 +8,10 @@ let ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
 
 let ballSpeedX = 0;
 let ballSpeedY = 0;
-const acceleration = 0.2; // Acceleration factor
-const maxSpeed = 20; // Maximum speed
-const deceleration = 0.02; // Deceleration factor
-const slowdown = 0.05; // Slowdown factor
+
+const acceleration = 0.2;   //higher number higher speed
+const maxSpeed = 20;        //max speed
+const deceleration = 0.02;  //inertia
 
 const keys = {
     w: false,
@@ -31,8 +32,19 @@ function handleKeyup(event) {
     keys[event.key] = false;
 }
 
+function checkCollision() {
+    const ballRect = ball.getBoundingClientRect();
+    const obstacleRect = obstacle.getBoundingClientRect();
+
+    return (
+        ballRect.left < obstacleRect.right &&
+        ballRect.right > obstacleRect.left &&
+        ballRect.top < obstacleRect.bottom &&
+        ballRect.bottom > obstacleRect.top
+    );
+}
+
 function moveBall() {
-    // Accelerate in the direction of the pressed keys
     let targetSpeedX = 0;
     let targetSpeedY = 0;
 
@@ -41,7 +53,6 @@ function moveBall() {
     if (keys['a']) targetSpeedX -= acceleration;
     if (keys['d']) targetSpeedX += acceleration;
 
-    // Apply deceleration when changing direction
     if ((targetSpeedX > 0 && ballSpeedX < 0) || (targetSpeedX < 0 && ballSpeedX > 0)) {
         ballSpeedX *= 1 - deceleration;
     }
@@ -50,36 +61,43 @@ function moveBall() {
         ballSpeedY *= 1 - deceleration;
     }
 
-    // Always apply deceleration when no input is pressed
     ballSpeedX *= 1 - deceleration;
     ballSpeedY *= 1 - deceleration;
 
-    // Update ball speed
     ballSpeedX = Math.max(-maxSpeed, Math.min(ballSpeedX + targetSpeedX, maxSpeed));
     ballSpeedY = Math.max(-maxSpeed, Math.min(ballSpeedY + targetSpeedY, maxSpeed));
 
-    // Update ball position
     ballX += ballSpeedX;
     ballY += ballSpeedY;
 
-    // Ensure the ball stays within the game container
-    ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
-    ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+    if (checkCollision()) {
+        // Adjust the ball's position to avoid overlap with the obstacle
+        ballX -= 2 * ballSpeedX;
+        ballY -= 2 * ballSpeedY;
 
-    // Apply slowdown effect when the ball stops moving
-    if (!keys['w'] && !keys['s'] && !keys['a'] && !keys['d'] && Math.abs(ballSpeedX) < 0.1 && Math.abs(ballSpeedY) < 0.1) {
-        ballSpeedX *= 1 - slowdown;
-        ballSpeedY *= 1 - slowdown;
+        // Invert the ball's speed components to simulate a bounce effect
+        ballSpeedX = -ballSpeedX;
+        ballSpeedY = -ballSpeedY;
+
+        // Optionally, reduce the bounce effect by applying deceleration
+        ballSpeedX *= 1 - deceleration;
+        ballSpeedY *= 1 - deceleration;
+
+        updateBallPosition();
+        console.log('Collision with obstacle detected!');
+    } else {
+        ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
+        ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+
+        updateBallPosition();
     }
-
-    updateBallPosition();
 }
+
 
 document.addEventListener('keydown', handleKeydown);
 document.addEventListener('keyup', handleKeyup);
 
-// Update ball position continuously
-setInterval(moveBall, 16); // Adjust the interval as needed
+setInterval(moveBall, 16);
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
