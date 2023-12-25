@@ -3,8 +3,9 @@
       {
         "name": "Level 1",
         "obstacles": [
-          {"x": 100, "y": 100, "width": 50, "height": 50},
-          {"x": 200, "y": 200, "width": 30, "height": 30}
+          {"x": 20, "y": 25, "width": 10, "height": 10},
+          {"x": 50, "y": 60, "width": 1, "height": 1},
+          {"x": 80, "y": 10, "width": 2, "height": 2}
         ]
       },
       {

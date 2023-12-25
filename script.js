@@ -1,6 +1,8 @@
 const ball = document.getElementById('ball');
 const gameContainer = document.getElementById('game-container');
 let obstacles = [];
+const startButton = document.getElementById('startButton');
+let isGameRunning = false;
 
 // Set the initial position of the ball to the center of the game container
 let ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
@@ -30,6 +32,36 @@ function handleKeydown(event) {
 
 function handleKeyup(event) {
     keys[event.key] = false;
+}
+
+startButton.addEventListener('click', () => {
+    if (isGameRunning) {
+        resetGame();
+    } else {
+        isGameRunning = true;
+
+        gameContainer.style.display = 'block';
+        
+        document.addEventListener('keydown', handleKeydown);
+        document.addEventListener('keyup', handleKeyup);
+    }
+});
+
+function resetGame() {
+    isGameRunning = false;
+
+    ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
+    ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
+
+    obstacles.forEach(obstacle => obstacle.remove());
+    obstacles = [];
+
+    loadObstacles(0);
+
+    ballSpeedX = 0;
+    ballSpeedY = 0;
+
+    updateBallPosition();
 }
 
 function checkCollisions() {
@@ -104,10 +136,10 @@ function createObstacle(obstacleData) {
     const newObstacle = document.createElement('div');
     newObstacle.className = 'obstacle';
 
-    newObstacle.style.left = obstacleData.x + 'px';
-    newObstacle.style.top = obstacleData.y + 'px';
-    newObstacle.style.width = obstacleData.width + 'px';
-    newObstacle.style.height = obstacleData.height + 'px';
+    newObstacle.style.left = obstacleData.x + '%';
+    newObstacle.style.top = obstacleData.y + '%';
+    newObstacle.style.width = obstacleData.width + '%';
+    newObstacle.style.height = obstacleData.height + '%';
 
     gameContainer.appendChild(newObstacle);
     obstacles.push(newObstacle);
