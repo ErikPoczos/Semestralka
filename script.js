@@ -4,13 +4,17 @@ const startButton = document.getElementById('startButton');
 const hpLabel = document.getElementById('hp');
 
 let obstacles = [];
+let coins = [];
+
+let currentLevel = 0;
 let isGameRunning = false;
 
 let hitPoints = 5;
 updateHitPoints();
+
 // Set the initial position of the ball to the center of the game container
-let ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
-let ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
+let ballX;
+let ballY;
 
 let ballSpeedX = 0;
 let ballSpeedY = 0;
@@ -46,20 +50,14 @@ startButton.addEventListener('click', () => {
         resetGame();
     } else {
         isGameRunning = true;
-
-        gameContainer.style.display = 'block';
-        
-        document.addEventListener('keydown', handleKeydown);
-        document.addEventListener('keyup', handleKeyup);
     }
 });
 
-// Function to load obstacles for a specific level
-function loadObstacles(levelIndex) {
+function loadLevel(levelIndex) {
     fetch('jsons/levels.json')
         .then(response => response.json())
-        .then(obstaclesData => {
-            const level = obstaclesData.levels[levelIndex];
+        .then(data => {
+            const level = data.levels[levelIndex];
 
             if (level && level.obstacles) {
                 level.obstacles.forEach((obstacleData) => {
@@ -68,10 +66,41 @@ function loadObstacles(levelIndex) {
             } else {
                 console.error('Invalid level or obstacle data:', level);
             }
-            console.log(obstaclesData);
+
+            if (level && level.coins) {
+                level.coins.forEach((coinData) => {
+                    createCoin(coinData);
+                });
+            } else {
+                console.error('Invalid level or coin data:', level);
+            }
+
+            ballX = (level.spawn[0].x / 100) * gameContainer.clientWidth;
+            ballY = (level.spawn[0].y / 100) * gameContainer.clientHeight;
         })
-        .catch(error => console.error('Error loading obstacles:', error));
+        .catch(error => console.error('Error loading data:', error));
 }
+
+
+function createCoin(coinData) {
+    const newCoin = document.createElement('div');
+    newCoin.className = 'coin'; // You can add additional classes or styling for coins
+
+    const diameter = coinData.radius * 2 + 'px';
+
+    newCoin.style.width = diameter;
+    newCoin.style.height = diameter;
+    newCoin.style.borderRadius = '50%';  // Set border-radius to create a circle
+    newCoin.style.backgroundColor = 'gold'; // Default to gold if color is not provided
+
+    newCoin.style.position = 'absolute';
+    newCoin.style.left = coinData.position.x + '%';
+    newCoin.style.top = coinData.position.y + '%';
+    coins.push(newCoin);
+    document.getElementById('game-container').appendChild(newCoin);
+}
+
+
 
 function updateHitPoints() {
     hpLabel.innerHTML = "Remaining hitpoints: " + hitPoints;
@@ -110,12 +139,43 @@ function showDeathModal() {
     document.body.appendChild(modalOverlay);
 }
 
+function showWinnerModal() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+
+    const winnerModal = document.createElement('div');
+    winnerModal.className = 'winner-modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const modalText = document.createElement('p');
+    modalText.textContent = 'Congratulations! You collected all the coins.';
+
+    const tryAgainButton = document.createElement('button');
+    tryAgainButton.textContent = 'Try Again';
+    tryAgainButton.addEventListener('click', resetGame);
+
+    const continueButton = document.createElement('button');
+    continueButton.textContent = 'Continue';
+    continueButton.addEventListener('click', nextLevel);
+    
+    modalContent.appendChild(modalText);
+    modalContent.appendChild(tryAgainButton);
+    modalContent.appendChild(continueButton);
+
+    winnerModal.appendChild(modalContent);
+    modalOverlay.appendChild(winnerModal);
+    document.body.appendChild(modalOverlay);
+}
+
 function resetGame() {
     const modalOverlay = document.querySelector('.modal-overlay');
     modalOverlay.remove();
 
     isGameRunning = false;
     hitPoints = 5;
+    coins = [];
     updateHitPoints();
 
     ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
@@ -124,12 +184,31 @@ function resetGame() {
     obstacles.forEach(obstacle => obstacle.remove());
     obstacles = [];
 
-    loadObstacles(0);
+    loadLevel(currentLevel);
 
     ballSpeedX = 0;
     ballSpeedY = 0;
 
     updateBallPosition();
+}
+
+function nextLevel(){
+    ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
+    ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
+
+    ballSpeedX = 0;
+    ballSpeedY = 0;
+
+    isGameRunning = true;
+    currentLevel++;
+
+    const modalOverlay = document.querySelector('.modal-overlay');
+    modalOverlay.remove();
+
+    obstacles.forEach(obstacle => obstacle.remove());
+    obstacles = [];
+    
+    loadLevel(currentLevel);
 }
 
 function checkCollisions() {
@@ -144,7 +223,20 @@ function checkCollisions() {
             ballRect.top < obstacleRect.bottom &&
             ballRect.bottom > obstacleRect.top
         ) {
-            handleCollision();
+            handleCollision(obstacle);
+        }
+    });
+
+    coins.forEach(coin => {
+        const coinSphere = coin.getBoundingClientRect();
+
+        if (
+            ballRect.left < coinSphere.right &&
+            ballRect.right > coinSphere.left &&
+            ballRect.top < coinSphere.bottom &&
+            ballRect.bottom > coinSphere.top
+        ) {
+            handleCollision(coin);
         }
     });
 }
@@ -188,7 +280,13 @@ function moveBall() {
     }
 }
 
-function handleCollision() {
+function handleCollision(collisionObject) {
+
+    if (collisionObject.classList.contains('coin')) {
+        collectCoin(collisionObject);
+        return;
+    }
+
     hitPoints--;
 
     updateHitPoints();
@@ -206,6 +304,23 @@ function handleCollision() {
     console.log('Collision with obstacle detected!');
 }
 
+function collectCoin(coin) {
+    console.log('Collected coin:', coin);
+
+    const gameContainer = document.getElementById('game-container');
+    gameContainer.removeChild(coin);
+
+    const coinIndex = coins.indexOf(coin);
+
+    coins.splice(coinIndex, 1);
+
+    if (coins.length === 0) {
+        isGameRunning = false;
+        showWinnerModal();
+    }
+}
+
+
 // Function to create obstacle element
 function createObstacle(obstacleData) {
     const newObstacle = document.createElement('div');
@@ -221,7 +336,7 @@ function createObstacle(obstacleData) {
     console.log('Obstacle created:', obstacleData);
 }
 
-loadObstacles(0);
+loadLevel(currentLevel);
 
 setInterval(moveBall, 16);
 
