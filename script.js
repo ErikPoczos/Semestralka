@@ -1,9 +1,13 @@
 const ball = document.getElementById('ball');
 const gameContainer = document.getElementById('game-container');
-let obstacles = [];
 const startButton = document.getElementById('startButton');
+const hpLabel = document.getElementById('hp');
+
+let obstacles = [];
 let isGameRunning = false;
 
+let hitPoints = 5;
+updateHitPoints();
 // Set the initial position of the ball to the center of the game container
 let ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
 let ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
@@ -34,6 +38,9 @@ function handleKeyup(event) {
     keys[event.key] = false;
 }
 
+document.addEventListener('keydown', handleKeydown);
+document.addEventListener('keyup', handleKeyup);
+
 startButton.addEventListener('click', () => {
     if (isGameRunning) {
         resetGame();
@@ -47,8 +54,69 @@ startButton.addEventListener('click', () => {
     }
 });
 
+// Function to load obstacles for a specific level
+function loadObstacles(levelIndex) {
+    fetch('jsons/levels.json')
+        .then(response => response.json())
+        .then(obstaclesData => {
+            const level = obstaclesData.levels[levelIndex];
+
+            if (level && level.obstacles) {
+                level.obstacles.forEach((obstacleData) => {
+                    createObstacle(obstacleData);
+                });
+            } else {
+                console.error('Invalid level or obstacle data:', level);
+            }
+            console.log(obstaclesData);
+        })
+        .catch(error => console.error('Error loading obstacles:', error));
+}
+
+function updateHitPoints() {
+    hpLabel.innerHTML = "Remaining hitpoints: " + hitPoints;
+
+    if (hitPoints <= 0) {
+        // Pause the game
+        isGameRunning = false;
+
+        // Display death modal
+        showDeathModal();
+    }
+  }
+
+function showDeathModal() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+
+    const deathModal = document.createElement('div');
+    deathModal.className = 'death-modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const modalText = document.createElement('p');
+    modalText.textContent = 'You died!';
+
+    const tryAgainButton = document.createElement('button');
+    tryAgainButton.textContent = 'Try Again';
+    tryAgainButton.addEventListener('click', resetGame);
+
+    modalContent.appendChild(modalText);
+    modalContent.appendChild(tryAgainButton);
+
+    deathModal.appendChild(modalContent);
+    modalOverlay.appendChild(deathModal);
+    document.body.appendChild(modalOverlay);
+}
+
 function resetGame() {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    modalOverlay.remove();
+
     isGameRunning = false;
+    hitPoints = 5;
+    updateHitPoints();
 
     ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
     ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
@@ -82,6 +150,9 @@ function checkCollisions() {
 }
 
 function moveBall() {
+    if (!isGameRunning) {
+        return; // Return early if the game is not running (modal is shown)
+    }
     let targetSpeedX = 0;
     let targetSpeedY = 0;
 
@@ -118,6 +189,10 @@ function moveBall() {
 }
 
 function handleCollision() {
+    hitPoints--;
+
+    updateHitPoints();
+
     ballX -= 2 * ballSpeedX;
     ballY -= 2 * ballSpeedY;
 
@@ -146,29 +221,7 @@ function createObstacle(obstacleData) {
     console.log('Obstacle created:', obstacleData);
 }
 
-// Function to load obstacles for a specific level
-function loadObstacles(levelIndex) {
-    fetch('jsons/levels.json')
-        .then(response => response.json())
-        .then(obstaclesData => {
-            const level = obstaclesData.levels[levelIndex];
-
-            if (level && level.obstacles) {
-                level.obstacles.forEach((obstacleData) => {
-                    createObstacle(obstacleData);
-                });
-            } else {
-                console.error('Invalid level or obstacle data:', level);
-            }
-            console.log(obstaclesData);
-        })
-        .catch(error => console.error('Error loading obstacles:', error));
-}
-
 loadObstacles(0);
-
-document.addEventListener('keydown', handleKeydown);
-document.addEventListener('keyup', handleKeyup);
 
 setInterval(moveBall, 16);
 
