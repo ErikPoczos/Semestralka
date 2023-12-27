@@ -184,6 +184,7 @@ function showWinnerModal() {
 }
 
 function showGameRules() {
+    isGameRunning = false;
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
 
@@ -206,6 +207,7 @@ function showGameRules() {
 
 
 function hideGameRules() {
+    isGameRunning = true;
     const modalOverlay = document.querySelector('.modal-overlay');
     modalOverlay.remove();
 }
