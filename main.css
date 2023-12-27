@@ -14,7 +14,7 @@ body {
     margin-bottom: 20px;
 }
 
-#startButton {
+#startButton, #rulesButton {
     padding: 10px;
     background-color: #3498db;
     color: white;
@@ -23,7 +23,7 @@ body {
     cursor: pointer;
 }
 
-#hp {
+#hpLabel {
     margin-top: 10px; /* Add margin to the top for spacing between button and label */
 }
 
@@ -64,7 +64,7 @@ body {
     z-index: 1000;
 }
 
-.death-modal {
+.death-modal, .winner-modal, .game-rules-modal {
     background-color: #fff;
     padding: 20px;
     border-radius: 5px;

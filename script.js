@@ -103,7 +103,21 @@ function createCoin(coinData) {
 
 
 function updateHitPoints() {
-    hpLabel.innerHTML = "Remaining hitpoints: " + hitPoints;
+    const hpLabel = document.getElementById('hpLabel');
+
+    // Clear the content of hpLabel
+    hpLabel.innerHTML = "";
+
+    // Add text node
+    const textNode = document.createTextNode("Remaining hitpoints: ");
+    hpLabel.appendChild(textNode);
+
+    // Add heart icons based on the remaining hit points
+    for (let i = 0; i < hitPoints; i++) {
+        const heartIcon = document.createElement('i');
+        heartIcon.classList.add('fas', 'fa-heart');
+        hpLabel.appendChild(heartIcon);
+    }
 
     if (hitPoints <= 0) {
         // Pause the game
@@ -112,7 +126,7 @@ function updateHitPoints() {
         // Display death modal
         showDeathModal();
     }
-  }
+}
 
 function showDeathModal() {
     const modalOverlay = document.createElement('div');
@@ -168,6 +182,34 @@ function showWinnerModal() {
     modalOverlay.appendChild(winnerModal);
     document.body.appendChild(modalOverlay);
 }
+
+function showGameRules() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+
+    const gameRulesModal = document.createElement('div');
+    gameRulesModal.className = 'game-rules-modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.textContent = 'GAME RULES GAME RULES GAME RULES';
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.addEventListener('click', hideGameRules);
+
+    gameRulesModal.appendChild(modalContent);
+    gameRulesModal.appendChild(closeButton);
+
+    modalOverlay.appendChild(gameRulesModal);
+    document.body.appendChild(modalOverlay);
+}
+
+
+function hideGameRules() {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    modalOverlay.remove();
+}
+
 
 function resetGame() {
     const modalOverlay = document.querySelector('.modal-overlay');
