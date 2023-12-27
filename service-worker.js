@@ -2,6 +2,8 @@ const CACHE_NAME = 'ball-game-cache-v1';
 const urlsToCache = [
   '/',
   'images/icon.png',
+  'jsons/levels.json',  // Add other URLs that your app needs
+
 ];
 
 self.addEventListener('install', event => {
