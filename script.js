@@ -219,15 +219,13 @@ function resetGame() {
 
     isGameRunning = false;
     hitPoints = 5;
+    coins.forEach(coin => coin.remove());
     coins = [];
-    updateHitPoints();
-
-    ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
-    ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
 
     obstacles.forEach(obstacle => obstacle.remove());
     obstacles = [];
-
+    
+    updateHitPoints();
     loadLevel(currentLevel);
 
     ballSpeedX = 0;
