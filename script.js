@@ -53,7 +53,7 @@ startButton.addEventListener('click', () => {
     }
 });
 
-function loadLevel(levelIndex) {
+function loadLevel(levelIndex) { 
     fetch('jsons/levels.json')
         .then(response => response.json())
         .then(data => {
@@ -96,6 +96,9 @@ function createCoin(coinData) {
     newCoin.style.position = 'absolute';
     newCoin.style.left = coinData.position.x + '%';
     newCoin.style.top = coinData.position.y + '%';
+
+    console.log('Coin created:', newCoin, 'at', coinData.position.x + '%', coinData.position.y + '%');
+
     coins.push(newCoin);
     document.getElementById('game-container').appendChild(newCoin);
 }
@@ -151,6 +154,11 @@ function showDeathModal() {
     deathModal.appendChild(modalContent);
     modalOverlay.appendChild(deathModal);
     document.body.appendChild(modalOverlay);
+
+    keys['w'] = false;
+    keys['s'] = false;
+    keys['a'] = false;
+    keys['d'] = false;
 }
 
 function showWinnerModal() {
@@ -192,7 +200,45 @@ function showGameRules() {
     gameRulesModal.className = 'game-rules-modal';
 
     const modalContent = document.createElement('div');
-    modalContent.textContent = 'GAME RULES GAME RULES GAME RULES';
+    modalContent.textContent = `
+        GAME RULES:
+
+        Objective:
+        Navigate through the levels, collect gold coins, and complete the game with the highest score.
+
+        How to Play:
+        1. Click "Start Game" to begin your rolling ball adventure.
+        2. Use the arrow keys (W, A, S, D) to control the movement of the ball:
+           - W: Move Up
+           - A: Move Left
+           - S: Move Down
+           - D: Move Right
+
+        Game Elements:
+        - Gold Coins: Collect gold coins to score points and progress through the levels.
+        - Hearts: You start the game with 5 hearts. Each time you hit a wall, you lose 1 heart. If you run out of hearts, the game ends.
+        - Walls: Avoid colliding with walls to prevent losing hearts.
+
+        Levels:
+        The game consists of 5 levels, each with increasing difficulty. Reach the end of each level to unlock the next one.
+
+        Scoring:
+        - Collect gold coins to increase your score.
+        - Complete levels as quickly as possible for bonus points.
+
+        Winning:
+        Finish all 5 levels to win the game. The quicker you complete each level and the more gold coins you collect, the higher your final score.
+
+        Losing:
+        You lose the game if you run out of hearts. Colliding with walls deducts 1 heart.
+
+        Tips:
+        - Plan your movements to avoid hitting walls.
+        - Collect as many gold coins as possible for a higher score.
+        - Complete levels swiftly for bonus points.
+
+        Good luck on your Rolling Ball Adventure!
+    `;
 
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
@@ -204,6 +250,7 @@ function showGameRules() {
     modalOverlay.appendChild(gameRulesModal);
     document.body.appendChild(modalOverlay);
 }
+
 
 
 function hideGameRules() {
@@ -243,6 +290,11 @@ function nextLevel(){
 
     isGameRunning = true;
     currentLevel++;
+
+    keys['w'] = false;
+    keys['s'] = false;
+    keys['a'] = false;
+    keys['d'] = false;
 
     const modalOverlay = document.querySelector('.modal-overlay');
     modalOverlay.remove();
