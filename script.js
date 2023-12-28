@@ -57,10 +57,17 @@ startButton.addEventListener('click', () => {
 });
 
 function loadLevel(levelIndex) { 
+    const storedLevel = localStorage.getItem('currentLevel');
+    const initialLevel = storedLevel ? parseInt(storedLevel, 10) : 0;
+    
+    // If a level is stored, use it; otherwise, use the default initial level
+    const levelToLoad = levelIndex || initialLevel;
+    currentLevel = levelToLoad;
+    
     fetch('jsons/levels.json')
         .then(response => response.json())
         .then(data => {
-            const level = data.levels[levelIndex];
+            const level = data.levels[levelToLoad];
 
             if (level && level.obstacles) {
                 level.obstacles.forEach((obstacleData) => {
@@ -288,6 +295,7 @@ function resetGame() {
 }
 
 function nextLevel(){
+    localStorage.removeItem('currentLevel', currentLevel);
     ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
     ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
 
@@ -296,6 +304,7 @@ function nextLevel(){
 
     isGameRunning = true;
     currentLevel++;
+    localStorage.setItem('currentLevel', currentLevel);
 
     keys['w'] = false;
     keys['s'] = false;
