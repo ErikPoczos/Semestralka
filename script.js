@@ -16,6 +16,9 @@ updateHitPoints();
 let ballX;
 let ballY;
 
+let inintialBallX;
+let inintialBallY;
+
 let ballSpeedX = 0;
 let ballSpeedY = 0;
 
@@ -75,8 +78,8 @@ function loadLevel(levelIndex) {
                 console.error('Invalid level or coin data:', level);
             }
 
-            ballX = (level.spawn[0].x / 100) * gameContainer.clientWidth;
-            ballY = (level.spawn[0].y / 100) * gameContainer.clientHeight;
+            ballX = inintialBallX = (level.spawn[0].x / 100) * gameContainer.clientWidth;
+            ballY = inintialBallY = (level.spawn[0].y / 100) * gameContainer.clientHeight;
         })
         .catch(error => console.error('Error loading data:', error));
 }
@@ -277,6 +280,9 @@ function resetGame() {
 
     ballSpeedX = 0;
     ballSpeedY = 0;
+    
+    ballX = inintialBallX;
+    ballY = inintialBallY;
 
     updateBallPosition();
 }
