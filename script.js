@@ -63,6 +63,17 @@ function moveBall() {
     checkCollisions()
     ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
     ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+    
+    // Check if the ball hits the top or bottom bounds
+    if (ballY <= 0 || ballY >= gameContainer.clientHeight - ball.clientHeight) {
+        ballSpeedY = 0;
+    }
+
+    // Check if the ball hits the left or right wall
+    if (ballX <= 0 || ballX >= gameContainer.clientWidth - ball.clientWidth) {
+        ballSpeedX = 0;
+    }
+
     updateBallPosition();
 }
 
