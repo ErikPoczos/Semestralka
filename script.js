@@ -2,6 +2,7 @@
 const acceleration = 0.2;
 const maxSpeed = 20;
 const deceleration = 0.01;
+const sensitivity = 0.15;    
 
 // Elements
 const ball = document.getElementById('ball');
@@ -20,6 +21,10 @@ let initialBallY, ballY;
 let ballSpeedX = 0;
 let ballSpeedY = 0;
 
+let gyroscopeActive = false;
+let beta;
+let gamma;
+
 // Keyboard state
 const keys = { w: false, s: false, a: false, d: false};
 
@@ -34,6 +39,24 @@ startButton.addEventListener('click', () => {
     }
 });
 
+// Gyroscope
+if (window.DeviceOrientationEvent) {
+    // Add event listener for device orientation change
+    window.addEventListener('deviceorientation', handleOrientation);
+    gyroscopeActive = true;
+  } else {
+    alert("Device orientation not supported on this browser");
+  }
+
+function handleOrientation(event) {
+    // Extract rotation data
+    beta = event.beta;   // rotation around x-axis
+    gamma = event.gamma; // rotation around y-axis
+
+    // Move the ball based on gyroscope data
+    moveBall();
+}
+
 // Key input
 function handleKeydown(event) {
     keys[event.key] = true;
@@ -43,11 +66,17 @@ function handleKeyup(event) {
     keys[event.key] = false;
 }
 
-// Ball movement related function
 function moveBall() {
     if (!isGameRunning) {
         return;
     }
+
+    if (gyroscopeActive && typeof gamma === 'number' && typeof beta === 'number') {
+        ballX += sensitivity * gamma;
+        ballY += sensitivity * beta;
+
+        updateBallPosition();
+      }
 
     const targetSpeedX = calculateTargetSpeed('a', 'd');
     const targetSpeedY = calculateTargetSpeed('w', 's');
@@ -321,7 +350,7 @@ function nextLevel(){
     obstacles = [];
     
     loadLevel(currentLevel);
-    isGameRunning = true;
+    isGameRunning = false;
 }
 
 //Level loading
