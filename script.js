@@ -10,14 +10,9 @@ let currentLevel = 0;
 let isGameRunning = false;
 
 let hitPoints = 5;
-updateHitPoints();
 
-// Set the initial position of the ball to the center of the game container
-let ballX;
-let ballY;
-
-let inintialBallX;
-let inintialBallY;
+let initialBallX, ballX;
+let initialBallY, ballY;
 
 let ballSpeedX = 0;
 let ballSpeedY = 0;
@@ -26,12 +21,7 @@ const acceleration = 0.2;
 const maxSpeed = 20;
 const deceleration = 0.01;
 
-const keys = {
-    w: false,
-    s: false,
-    a: false,
-    d: false,
-};
+const keys = { w: false, s: false, a: false, d: false};
 
 function updateBallPosition() {
     ball.style.transform = `translate(${ballX}px, ${ballY}px)`;
@@ -59,34 +49,34 @@ startButton.addEventListener('click', () => {
 function loadLevel(levelIndex) { 
     const storedLevel = localStorage.getItem('currentLevel');
     const initialLevel = storedLevel ? parseInt(storedLevel, 10) : 0;
-    
-    // If a level is stored, use it; otherwise, use the default initial level
     const levelToLoad = levelIndex || initialLevel;
     currentLevel = levelToLoad;
     
     fetch('jsons/levels.json')
         .then(response => response.json())
-        .then(data => {
-            const level = data.levels[levelToLoad];
+        .then(({ levels }) => {
+            const level = levels[currentLevel];
 
             if (level && level.obstacles) {
-                level.obstacles.forEach((obstacleData) => {
-                    createObstacle(obstacleData);
-                });
+                level.obstacles.forEach(createObstacle);
             } else {
                 console.error('Invalid level or obstacle data:', level);
             }
 
             if (level && level.coins) {
-                level.coins.forEach((coinData) => {
-                    createCoin(coinData);
-                });
+                level.coins.forEach(createCoin);
             } else {
                 console.error('Invalid level or coin data:', level);
             }
 
-            ballX = inintialBallX = (level.spawn[0].x / 100) * gameContainer.clientWidth;
-            ballY = inintialBallY = (level.spawn[0].y / 100) * gameContainer.clientHeight;
+            const spawn = level && level.spawn && level.spawn[0];
+            if (spawn) {
+                initialBallX = (spawn.x / 100) * gameContainer.clientWidth;
+                initialBallY = (spawn.y / 100) * gameContainer.clientHeight;
+            }
+
+            resetBall();
+            updateHitPoints();
         })
         .catch(error => console.error('Error loading data:', error));
 }
@@ -94,20 +84,21 @@ function loadLevel(levelIndex) {
 
 function createCoin(coinData) {
     const newCoin = document.createElement('div');
-    newCoin.className = 'coin'; // You can add additional classes or styling for coins
+    newCoin.className = 'coin';
 
     const diameter = coinData.radius * 2 + 'px';
 
-    newCoin.style.width = diameter;
-    newCoin.style.height = diameter;
-    newCoin.style.borderRadius = '50%';  // Set border-radius to create a circle
-    newCoin.style.backgroundColor = 'gold'; // Default to gold if color is not provided
+    Object.assign(newCoin.style, {
+        width: diameter,
+        height: diameter,
+        borderRadius: '50%',
+        backgroundColor: 'gold',
+        position: 'absolute',
+        left: coinData.position.x + '%',
+        top: coinData.position.y + '%'
+    });
 
-    newCoin.style.position = 'absolute';
-    newCoin.style.left = coinData.position.x + '%';
-    newCoin.style.top = coinData.position.y + '%';
-
-    console.log('Coin created:', newCoin, 'at', coinData.position.x + '%', coinData.position.y + '%');
+    console.log('Coin created:', newCoin, 'at', `${coinData.position.x}%`, `${coinData.position.y}%`);
 
     coins.push(newCoin);
     document.getElementById('game-container').appendChild(newCoin);
@@ -117,15 +108,11 @@ function createCoin(coinData) {
 
 function updateHitPoints() {
     const hpLabel = document.getElementById('hpLabel');
-
-    // Clear the content of hpLabel
     hpLabel.innerHTML = "";
 
-    // Add text node
     const textNode = document.createTextNode("Remaining hitpoints: ");
     hpLabel.appendChild(textNode);
 
-    // Add heart icons based on the remaining hit points
     for (let i = 0; i < hitPoints; i++) {
         const heartIcon = document.createElement('i');
         heartIcon.classList.add('fas', 'fa-heart');
@@ -133,84 +120,53 @@ function updateHitPoints() {
     }
 
     if (hitPoints <= 0) {
-        // Pause the game
         isGameRunning = false;
-
-        // Display death modal
         showDeathModal();
     }
 }
 
-function showDeathModal() {
+function createModal(title, buttonText, buttonCallback) {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
 
-    const deathModal = document.createElement('div');
-    deathModal.className = 'death-modal';
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
 
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
 
     const modalText = document.createElement('p');
-    modalText.textContent = 'You died!';
+    modalText.textContent = title;
 
-    const tryAgainButton = document.createElement('button');
-    tryAgainButton.textContent = 'Try Again';
-    tryAgainButton.addEventListener('click', resetGame);
+    const actionButton = document.createElement('button');
+    actionButton.textContent = buttonText;
+    actionButton.addEventListener('click', buttonCallback);
 
     modalContent.appendChild(modalText);
-    modalContent.appendChild(tryAgainButton);
+    modalContent.appendChild(actionButton);
 
-    deathModal.appendChild(modalContent);
-    modalOverlay.appendChild(deathModal);
+    modal.appendChild(modalContent);
+    modalOverlay.appendChild(modal);
     document.body.appendChild(modalOverlay);
+}
 
-    keys['w'] = false;
-    keys['s'] = false;
-    keys['a'] = false;
-    keys['d'] = false;
+function showDeathModal() {
+    createModal('You died!', 'Try Again', resetGame);
 }
 
 function showWinnerModal() {
-    const modalOverlay = document.createElement('div');
-    modalOverlay.className = 'modal-overlay';
-
-    const winnerModal = document.createElement('div');
-    winnerModal.className = 'winner-modal';
-
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
-
-    const modalText = document.createElement('p');
-    modalText.textContent = 'Congratulations! You collected all the coins.';
-
-    const tryAgainButton = document.createElement('button');
-    tryAgainButton.textContent = 'Try Again';
-    tryAgainButton.addEventListener('click', resetGame);
-
+    createModal('Congratulations! You collected all the coins.', 'Try Again', resetGame);
     const continueButton = document.createElement('button');
     continueButton.textContent = 'Continue';
     continueButton.addEventListener('click', nextLevel);
-    
-    modalContent.appendChild(modalText);
-    modalContent.appendChild(tryAgainButton);
-    modalContent.appendChild(continueButton);
-
-    winnerModal.appendChild(modalContent);
-    modalOverlay.appendChild(winnerModal);
-    document.body.appendChild(modalOverlay);
+    document.querySelector('.modal-content').appendChild(continueButton);
 }
+
 
 function showGameRules() {
     isGameRunning = false;
-    const modalOverlay = document.createElement('div');
-    modalOverlay.className = 'modal-overlay';
 
-    const gameRulesModal = document.createElement('div');
-    gameRulesModal.className = 'game-rules-modal';
-
-    const modalContent = document.createElement('div');
-    modalContent.textContent = `
+    const modalContent = `
         GAME RULES:
 
         Objective:
@@ -250,23 +206,17 @@ function showGameRules() {
         Good luck on your Rolling Ball Adventure!
     `;
 
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Close';
-    closeButton.addEventListener('click', hideGameRules);
-
-    gameRulesModal.appendChild(modalContent);
-    gameRulesModal.appendChild(closeButton);
-
-    modalOverlay.appendChild(gameRulesModal);
-    document.body.appendChild(modalOverlay);
+    createModal(modalContent, 'Close', hideGameRules);
 }
-
-
 
 function hideGameRules() {
     isGameRunning = true;
+    removeModal();
+}
+
+function removeModal() {
     const modalOverlay = document.querySelector('.modal-overlay');
-    modalOverlay.remove();
+    modalOverlay && modalOverlay.remove();
 }
 
 
@@ -276,117 +226,121 @@ function resetGame() {
 
     isGameRunning = false;
     hitPoints = 5;
-    coins.forEach(coin => coin.remove());
+
+    clearElements(coins);
     coins = [];
 
-    obstacles.forEach(obstacle => obstacle.remove());
-    obstacles = [];
-    
+    clearElements(obstacles);
+    obstacles = []; 
+
     updateHitPoints();
     loadLevel(currentLevel);
 
+    resetBall();
+}
+
+function resetBall() {
     ballSpeedX = 0;
     ballSpeedY = 0;
-    
-    ballX = inintialBallX;
-    ballY = inintialBallY;
+
+    ballX = initialBallX;
+    ballY = initialBallY;
 
     updateBallPosition();
 }
 
-function nextLevel(){
-    localStorage.removeItem('currentLevel', currentLevel);
-    ballX = (gameContainer.clientWidth - ball.clientWidth) / 2;
-    ballY = (gameContainer.clientHeight - ball.clientHeight) / 2;
+function clearElements(elements) {
+    elements.forEach(element => element.remove());
+}
 
-    ballSpeedX = 0;
-    ballSpeedY = 0;
-
-    isGameRunning = true;
-    currentLevel++;
-    localStorage.setItem('currentLevel', currentLevel);
-
+function resetKeys() {
     keys['w'] = false;
     keys['s'] = false;
     keys['a'] = false;
     keys['d'] = false;
+}
 
-    const modalOverlay = document.querySelector('.modal-overlay');
-    modalOverlay.remove();
+function nextLevel(){
+    localStorage.removeItem('currentLevel', currentLevel);
+    resetBall();
+
+    currentLevel++;
+    localStorage.setItem('currentLevel', currentLevel);
+
+    resetKeys();
+    removeModal();
 
     obstacles.forEach(obstacle => obstacle.remove());
     obstacles = [];
     
     loadLevel(currentLevel);
+    isGameRunning = true;
+
 }
 
 function checkCollisions() {
+    if(!isGameRunning){
+        return;
+    }
+
     const ballRect = ball.getBoundingClientRect();
 
-    obstacles.forEach(obstacle => {
-        const obstacleRect = obstacle.getBoundingClientRect();
+    checkElementsCollisions(obstacles, ballRect);
+    checkElementsCollisions(coins, ballRect);
+}
+
+function checkElementsCollisions(elements, ballRect) {
+    elements.forEach(element => {
+        const elementRect = element.getBoundingClientRect();
 
         if (
-            ballRect.left < obstacleRect.right &&
-            ballRect.right > obstacleRect.left &&
-            ballRect.top < obstacleRect.bottom &&
-            ballRect.bottom > obstacleRect.top
+            ballRect.left < elementRect.right &&
+            ballRect.right > elementRect.left &&
+            ballRect.top < elementRect.bottom &&
+            ballRect.bottom > elementRect.top
         ) {
-            handleCollision(obstacle);
-        }
-    });
-
-    coins.forEach(coin => {
-        const coinSphere = coin.getBoundingClientRect();
-
-        if (
-            ballRect.left < coinSphere.right &&
-            ballRect.right > coinSphere.left &&
-            ballRect.top < coinSphere.bottom &&
-            ballRect.bottom > coinSphere.top
-        ) {
-            handleCollision(coin);
+            handleCollision(element);
         }
     });
 }
+
 
 function moveBall() {
     if (!isGameRunning) {
         return; // Return early if the game is not running (modal is shown)
     }
-    let targetSpeedX = 0;
-    let targetSpeedY = 0;
 
-    if (keys['w']) targetSpeedY -= acceleration;
-    if (keys['s']) targetSpeedY += acceleration;
-    if (keys['a']) targetSpeedX -= acceleration;
-    if (keys['d']) targetSpeedX += acceleration;
+    const targetSpeedX = calculateTargetSpeed('a', 'd');
+    const targetSpeedY = calculateTargetSpeed('w', 's');
 
-    if ((targetSpeedX > 0 && ballSpeedX < 0) || (targetSpeedX < 0 && ballSpeedX > 0)) {
-        ballSpeedX *= 1 - deceleration;
-    }
+    applyDeceleration();
 
-    if ((targetSpeedY > 0 && ballSpeedY < 0) || (targetSpeedY < 0 && ballSpeedY > 0)) {
-        ballSpeedY *= 1 - deceleration;
-    }
-
-    ballSpeedX *= 1 - deceleration;
-    ballSpeedY *= 1 - deceleration;
-
-    ballSpeedX = Math.max(-maxSpeed, Math.min(ballSpeedX + targetSpeedX, maxSpeed));
-    ballSpeedY = Math.max(-maxSpeed, Math.min(ballSpeedY + targetSpeedY, maxSpeed));
+    ballSpeedX = clampSpeed(ballSpeedX + targetSpeedX);
+    ballSpeedY = clampSpeed(ballSpeedY + targetSpeedY);
 
     ballX += ballSpeedX;
     ballY += ballSpeedY;
 
-    if (checkCollisions()) {
-        
-    } else {
-        ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
-        ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+    checkCollisions()
+    ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
+    ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+    updateBallPosition();
+}
 
-        updateBallPosition();
-    }
+function clampSpeed(speed) {
+    return Math.max(-maxSpeed, Math.min(speed, maxSpeed));
+}
+
+function calculateTargetSpeed(negativeKey, positiveKey) {
+    let targetSpeed = 0;
+    if (keys[negativeKey]) targetSpeed -= acceleration;
+    if (keys[positiveKey]) targetSpeed += acceleration;
+    return targetSpeed;
+}
+
+function applyDeceleration() {
+    ballSpeedX *= 1 - deceleration;
+    ballSpeedY *= 1 - deceleration;
 }
 
 function handleCollision(collisionObject) {
@@ -403,14 +357,16 @@ function handleCollision(collisionObject) {
     ballX -= 2 * ballSpeedX;
     ballY -= 2 * ballSpeedY;
 
-    ballSpeedX = -ballSpeedX;
-    ballSpeedY = -ballSpeedY;
-
-    ballSpeedX *= 1 - deceleration;
-    ballSpeedY *= 1 - deceleration;
+    reverseBallDirection(); 
+    applyDeceleration();
 
     updateBallPosition();
     console.log('Collision with obstacle detected!');
+}
+
+function reverseBallDirection() {
+    ballSpeedX = -ballSpeedX;
+    ballSpeedY = -ballSpeedY;
 }
 
 function collectCoin(coin) {
@@ -420,7 +376,6 @@ function collectCoin(coin) {
     gameContainer.removeChild(coin);
 
     const coinIndex = coins.indexOf(coin);
-
     coins.splice(coinIndex, 1);
 
     if (coins.length === 0) {
@@ -430,20 +385,25 @@ function collectCoin(coin) {
 }
 
 
-// Function to create obstacle element
 function createObstacle(obstacleData) {
     const newObstacle = document.createElement('div');
     newObstacle.className = 'obstacle';
 
-    newObstacle.style.left = obstacleData.x + '%';
-    newObstacle.style.top = obstacleData.y + '%';
-    newObstacle.style.width = obstacleData.width + '%';
-    newObstacle.style.height = obstacleData.height + '%';
+    const { x, y, width, height } = obstacleData;
+
+    Object.assign(newObstacle.style, {
+        left: `${x}%`,
+        top: `${y}%`,
+        width: `${width}%`,
+        height: `${height}%`,
+    });
 
     gameContainer.appendChild(newObstacle);
     obstacles.push(newObstacle);
+
     console.log('Obstacle created:', obstacleData);
 }
+
 
 loadLevel(currentLevel);
 
