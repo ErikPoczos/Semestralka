@@ -1,43 +1,31 @@
+// Constants
+const acceleration = 0.2;
+const maxSpeed = 20;
+const deceleration = 0.01;
+
+// Elements
 const ball = document.getElementById('ball');
 const gameContainer = document.getElementById('game-container');
 const startButton = document.getElementById('startButton');
 const hpLabel = document.getElementById('hp');
 
+// Game state
 let obstacles = [];
 let coins = [];
-
 let currentLevel = 0;
 let isGameRunning = false;
-
 let hitPoints = 5;
-
 let initialBallX, ballX;
 let initialBallY, ballY;
-
 let ballSpeedX = 0;
 let ballSpeedY = 0;
 
-const acceleration = 0.2;
-const maxSpeed = 20;
-const deceleration = 0.01;
-
+// Keyboard state
 const keys = { w: false, s: false, a: false, d: false};
 
-function updateBallPosition() {
-    ball.style.transform = `translate(${ballX}px, ${ballY}px)`;
-}
-
-function handleKeydown(event) {
-    keys[event.key] = true;
-}
-
-function handleKeyup(event) {
-    keys[event.key] = false;
-}
-
+// Event listeners
 document.addEventListener('keydown', handleKeydown);
 document.addEventListener('keyup', handleKeyup);
-
 startButton.addEventListener('click', () => {
     if (isGameRunning) {
         resetGame();
@@ -46,6 +34,233 @@ startButton.addEventListener('click', () => {
     }
 });
 
+// Key input
+function handleKeydown(event) {
+    keys[event.key] = true;
+}
+
+function handleKeyup(event) {
+    keys[event.key] = false;
+}
+
+// Ball movement related function
+function moveBall() {
+    if (!isGameRunning) {
+        return;
+    }
+
+    const targetSpeedX = calculateTargetSpeed('a', 'd');
+    const targetSpeedY = calculateTargetSpeed('w', 's');
+
+    applyDeceleration();
+
+    ballSpeedX = clampSpeed(ballSpeedX + targetSpeedX);
+    ballSpeedY = clampSpeed(ballSpeedY + targetSpeedY);
+
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+
+    checkCollisions()
+    ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
+    ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
+    updateBallPosition();
+}
+
+function clampSpeed(speed) {
+    return Math.max(-maxSpeed, Math.min(speed, maxSpeed));
+}
+
+function calculateTargetSpeed(negativeKey, positiveKey) {
+    let targetSpeed = 0;
+    if (keys[negativeKey]) targetSpeed -= acceleration;
+    if (keys[positiveKey]) targetSpeed += acceleration;
+    return targetSpeed;
+}
+
+function applyDeceleration() {
+    ballSpeedX *= 1 - deceleration;
+    ballSpeedY *= 1 - deceleration;
+}
+
+function updateBallPosition() {
+    ball.style.transform = `translate(${ballX}px, ${ballY}px)`;
+}
+
+function reverseBallDirection() {
+    ballSpeedX = -ballSpeedX;
+    ballSpeedY = -ballSpeedY;
+}
+
+// Movement update interval
+setInterval(moveBall, 16);
+
+// Reset related functions
+function resetGame() {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    modalOverlay.remove();
+
+    isGameRunning = false;
+    hitPoints = 5;
+
+    clearElements(coins);
+    coins = [];
+
+    clearElements(obstacles);
+    obstacles = []; 
+
+    updateHitPoints();
+    loadLevel(currentLevel);
+
+    resetBall();
+}
+
+function resetBall() {
+    ballSpeedX = 0;
+    ballSpeedY = 0;
+
+    ballX = initialBallX;
+    ballY = initialBallY;
+
+    updateBallPosition();
+}
+
+function clearElements(elements) {
+    elements.forEach(element => element.remove());
+}
+
+function resetKeys() {
+    keys['w'] = false;
+    keys['s'] = false;
+    keys['a'] = false;
+    keys['d'] = false;
+}
+
+// Object creation
+function createCoin(coinData) {
+    const newCoin = document.createElement('div');
+    newCoin.className = 'coin';
+
+    const diameter = coinData.radius * 2 + 'px';
+
+    Object.assign(newCoin.style, {
+        width: diameter,
+        height: diameter,
+        borderRadius: '50%',
+        backgroundColor: 'gold',
+        position: 'absolute',
+        left: coinData.position.x + '%',
+        top: coinData.position.y + '%'
+    });
+
+    console.log('Coin created:', newCoin, 'at', `${coinData.position.x}%`, `${coinData.position.y}%`);
+
+    coins.push(newCoin);
+    document.getElementById('game-container').appendChild(newCoin);
+}
+
+function createObstacle(obstacleData) {
+    const newObstacle = document.createElement('div');
+    newObstacle.className = 'obstacle';
+
+    const { x, y, width, height } = obstacleData;
+
+    Object.assign(newObstacle.style, {
+        left: `${x}%`,
+        top: `${y}%`,
+        width: `${width}%`,
+        height: `${height}%`,
+    });
+
+    gameContainer.appendChild(newObstacle);
+    obstacles.push(newObstacle);
+
+    console.log('Obstacle created:', obstacleData);
+}
+
+// Collision handling
+function checkCollisions() {
+    if(!isGameRunning){
+        return;
+    }
+
+    const ballRect = ball.getBoundingClientRect();
+
+    checkElementsCollisions(obstacles, ballRect);
+    checkElementsCollisions(coins, ballRect);
+}
+
+function checkElementsCollisions(elements, ballRect) {
+    elements.forEach(element => {
+        const elementRect = element.getBoundingClientRect();
+
+        if (
+            ballRect.left < elementRect.right &&
+            ballRect.right > elementRect.left &&
+            ballRect.top < elementRect.bottom &&
+            ballRect.bottom > elementRect.top
+        ) {
+            handleCollision(element);
+        }
+    });
+}
+
+function handleCollision(collisionObject) {
+
+    if (collisionObject.classList.contains('coin')) {
+        collectCoin(collisionObject);
+        return;
+    }
+
+    hitPoints--;
+
+    updateHitPoints();
+
+    ballX -= 2 * ballSpeedX;
+    ballY -= 2 * ballSpeedY;
+
+    reverseBallDirection(); 
+    applyDeceleration();
+
+    updateBallPosition();
+    console.log('Collision with obstacle detected!');
+}
+
+function collectCoin(coin) {
+    console.log('Collected coin:', coin);
+
+    const gameContainer = document.getElementById('game-container');
+    gameContainer.removeChild(coin);
+
+    const coinIndex = coins.indexOf(coin);
+    coins.splice(coinIndex, 1);
+
+    if (coins.length === 0) {
+        isGameRunning = false;
+        showWinnerModal();
+    }
+}
+
+// Health update system
+function updateHitPoints() {
+    const hpLabel = document.getElementById('hpLabel');
+    hpLabel.innerHTML = "";
+
+    const textNode = document.createTextNode("Remaining hitpoints: ");
+    hpLabel.appendChild(textNode);
+
+    for (let i = 0; i < hitPoints; i++) {
+        const heartIcon = document.createElement('i');
+        heartIcon.classList.add('fas', 'fa-heart');
+        hpLabel.appendChild(heartIcon);
+    }
+
+    if (hitPoints <= 0) {
+        isGameRunning = false;
+        showDeathModal();
+    }
+}
+
+// Level loading handling
 function loadLevel(levelIndex) { 
     const storedLevel = localStorage.getItem('currentLevel');
     const initialLevel = storedLevel ? parseInt(storedLevel, 10) : 0;
@@ -81,50 +296,38 @@ function loadLevel(levelIndex) {
         .catch(error => console.error('Error loading data:', error));
 }
 
+function nextLevel(){
+    localStorage.removeItem('currentLevel', currentLevel);
+    resetBall();
 
-function createCoin(coinData) {
-    const newCoin = document.createElement('div');
-    newCoin.className = 'coin';
+    currentLevel++;
+    localStorage.setItem('currentLevel', currentLevel);
 
-    const diameter = coinData.radius * 2 + 'px';
+    resetKeys();
+    removeModal();
 
-    Object.assign(newCoin.style, {
-        width: diameter,
-        height: diameter,
-        borderRadius: '50%',
-        backgroundColor: 'gold',
-        position: 'absolute',
-        left: coinData.position.x + '%',
-        top: coinData.position.y + '%'
-    });
-
-    console.log('Coin created:', newCoin, 'at', `${coinData.position.x}%`, `${coinData.position.y}%`);
-
-    coins.push(newCoin);
-    document.getElementById('game-container').appendChild(newCoin);
+    obstacles.forEach(obstacle => obstacle.remove());
+    obstacles = [];
+    
+    loadLevel(currentLevel);
+    isGameRunning = true;
 }
 
+//Level loading
+loadLevel(currentLevel);
 
-
-function updateHitPoints() {
-    const hpLabel = document.getElementById('hpLabel');
-    hpLabel.innerHTML = "";
-
-    const textNode = document.createTextNode("Remaining hitpoints: ");
-    hpLabel.appendChild(textNode);
-
-    for (let i = 0; i < hitPoints; i++) {
-        const heartIcon = document.createElement('i');
-        heartIcon.classList.add('fas', 'fa-heart');
-        hpLabel.appendChild(heartIcon);
-    }
-
-    if (hitPoints <= 0) {
-        isGameRunning = false;
-        showDeathModal();
-    }
+// Service worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+        .then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(function(error) {
+            console.error('Service Worker registration failed:', error);
+        });
 }
 
+//Modal related function
 function createModal(title, buttonText, buttonCallback) {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'modal-overlay';
@@ -150,6 +353,16 @@ function createModal(title, buttonText, buttonCallback) {
     document.body.appendChild(modalOverlay);
 }
 
+function removeModal() {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    modalOverlay && modalOverlay.remove();
+}
+
+function hideGameRules() {
+    isGameRunning = true;
+    removeModal();
+}
+
 function showDeathModal() {
     createModal('You died!', 'Try Again', resetGame);
 }
@@ -161,7 +374,6 @@ function showWinnerModal() {
     continueButton.addEventListener('click', nextLevel);
     document.querySelector('.modal-content').appendChild(continueButton);
 }
-
 
 function showGameRules() {
     isGameRunning = false;
@@ -207,214 +419,4 @@ function showGameRules() {
     `;
 
     createModal(modalContent, 'Close', hideGameRules);
-}
-
-function hideGameRules() {
-    isGameRunning = true;
-    removeModal();
-}
-
-function removeModal() {
-    const modalOverlay = document.querySelector('.modal-overlay');
-    modalOverlay && modalOverlay.remove();
-}
-
-
-function resetGame() {
-    const modalOverlay = document.querySelector('.modal-overlay');
-    modalOverlay.remove();
-
-    isGameRunning = false;
-    hitPoints = 5;
-
-    clearElements(coins);
-    coins = [];
-
-    clearElements(obstacles);
-    obstacles = []; 
-
-    updateHitPoints();
-    loadLevel(currentLevel);
-
-    resetBall();
-}
-
-function resetBall() {
-    ballSpeedX = 0;
-    ballSpeedY = 0;
-
-    ballX = initialBallX;
-    ballY = initialBallY;
-
-    updateBallPosition();
-}
-
-function clearElements(elements) {
-    elements.forEach(element => element.remove());
-}
-
-function resetKeys() {
-    keys['w'] = false;
-    keys['s'] = false;
-    keys['a'] = false;
-    keys['d'] = false;
-}
-
-function nextLevel(){
-    localStorage.removeItem('currentLevel', currentLevel);
-    resetBall();
-
-    currentLevel++;
-    localStorage.setItem('currentLevel', currentLevel);
-
-    resetKeys();
-    removeModal();
-
-    obstacles.forEach(obstacle => obstacle.remove());
-    obstacles = [];
-    
-    loadLevel(currentLevel);
-    isGameRunning = true;
-
-}
-
-function checkCollisions() {
-    if(!isGameRunning){
-        return;
-    }
-
-    const ballRect = ball.getBoundingClientRect();
-
-    checkElementsCollisions(obstacles, ballRect);
-    checkElementsCollisions(coins, ballRect);
-}
-
-function checkElementsCollisions(elements, ballRect) {
-    elements.forEach(element => {
-        const elementRect = element.getBoundingClientRect();
-
-        if (
-            ballRect.left < elementRect.right &&
-            ballRect.right > elementRect.left &&
-            ballRect.top < elementRect.bottom &&
-            ballRect.bottom > elementRect.top
-        ) {
-            handleCollision(element);
-        }
-    });
-}
-
-
-function moveBall() {
-    if (!isGameRunning) {
-        return; // Return early if the game is not running (modal is shown)
-    }
-
-    const targetSpeedX = calculateTargetSpeed('a', 'd');
-    const targetSpeedY = calculateTargetSpeed('w', 's');
-
-    applyDeceleration();
-
-    ballSpeedX = clampSpeed(ballSpeedX + targetSpeedX);
-    ballSpeedY = clampSpeed(ballSpeedY + targetSpeedY);
-
-    ballX += ballSpeedX;
-    ballY += ballSpeedY;
-
-    checkCollisions()
-    ballX = Math.max(0, Math.min(ballX, gameContainer.clientWidth - ball.clientWidth));
-    ballY = Math.max(0, Math.min(ballY, gameContainer.clientHeight - ball.clientHeight));
-    updateBallPosition();
-}
-
-function clampSpeed(speed) {
-    return Math.max(-maxSpeed, Math.min(speed, maxSpeed));
-}
-
-function calculateTargetSpeed(negativeKey, positiveKey) {
-    let targetSpeed = 0;
-    if (keys[negativeKey]) targetSpeed -= acceleration;
-    if (keys[positiveKey]) targetSpeed += acceleration;
-    return targetSpeed;
-}
-
-function applyDeceleration() {
-    ballSpeedX *= 1 - deceleration;
-    ballSpeedY *= 1 - deceleration;
-}
-
-function handleCollision(collisionObject) {
-
-    if (collisionObject.classList.contains('coin')) {
-        collectCoin(collisionObject);
-        return;
-    }
-
-    hitPoints--;
-
-    updateHitPoints();
-
-    ballX -= 2 * ballSpeedX;
-    ballY -= 2 * ballSpeedY;
-
-    reverseBallDirection(); 
-    applyDeceleration();
-
-    updateBallPosition();
-    console.log('Collision with obstacle detected!');
-}
-
-function reverseBallDirection() {
-    ballSpeedX = -ballSpeedX;
-    ballSpeedY = -ballSpeedY;
-}
-
-function collectCoin(coin) {
-    console.log('Collected coin:', coin);
-
-    const gameContainer = document.getElementById('game-container');
-    gameContainer.removeChild(coin);
-
-    const coinIndex = coins.indexOf(coin);
-    coins.splice(coinIndex, 1);
-
-    if (coins.length === 0) {
-        isGameRunning = false;
-        showWinnerModal();
-    }
-}
-
-
-function createObstacle(obstacleData) {
-    const newObstacle = document.createElement('div');
-    newObstacle.className = 'obstacle';
-
-    const { x, y, width, height } = obstacleData;
-
-    Object.assign(newObstacle.style, {
-        left: `${x}%`,
-        top: `${y}%`,
-        width: `${width}%`,
-        height: `${height}%`,
-    });
-
-    gameContainer.appendChild(newObstacle);
-    obstacles.push(newObstacle);
-
-    console.log('Obstacle created:', obstacleData);
-}
-
-
-loadLevel(currentLevel);
-
-setInterval(moveBall, 16);
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-        .then(function(registration) {
-            console.log('Service Worker registered with scope:', registration.scope);
-        })
-        .catch(function(error) {
-            console.error('Service Worker registration failed:', error);
-        });
 }
