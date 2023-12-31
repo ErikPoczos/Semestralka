@@ -28,7 +28,6 @@ body {
 }
 
 #game-container {
-    display: visible;
     position: relative;
     width: 80%;
     height: 80%;
@@ -55,58 +54,109 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 1000;
+    align-items: center;
 }
 
-.death-modal, .winner-modal {
-    background-color: #fff;
+.custom-modal {
+    background: #fff;
     padding: 20px;
     border-radius: 5px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto; /* Enable vertical scrolling */
     text-align: center;
 }
 
-.modal-content {
-    margin-bottom: 20px;
-}
-
 .game-rules-modal {
-    background-color: #f8f9fa; /* Light gray background */
-    padding: 20px;
-    border-radius: 10px;
     text-align: left;
-    max-width: 600px;
-    margin: 0 auto;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Subtle box shadow for depth */
 }
 
 .game-rules-modal h2 {
-    font-size: 1.5em;
-    color: #007bff; /* Blue color for headings */
+    text-align: center;
+}
+
+.game-rules-modal h3 {
+    margin-top: 10px;
+}
+
+.game-rules-modal ol,
+.game-rules-modal ul {
+    margin-bottom: 10px;
+}
+
+.game-rules-modal ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.game-rules-modal ul ul {
+    margin-top: 5px;
 }
 
 .game-rules-modal p {
-    font-size: 1.2em;
-    line-height: 1.5;
-    color: #333; /* Dark gray text color */
+    margin-bottom: 10px;
 }
 
 .game-rules-modal button {
-    background-color: #007bff; /* Blue color for the button */
-    color: #fff; /* White text color */
+    margin-top: 15px;
+}
+
+  /* Modal Content */
+  .modal-content {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  /* Modal Text */
+  .modal-content p {
+    padding: 10px;
+  }
+  
+  .modal-content button {
+    margin-left: 5px;
+  }
+
+  /* Action Button */
+  button {
     padding: 10px 15px;
-    font-size: 1em;
+    background-color: #3498db; /* Change the button color */
+    color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.game-rules-modal button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+    font-size: 16px;
+  }
+  
+  button:hover {
+    background-color: #2980b9; /* Change the button color on hover */
+  }
+  
+  /* Close Button */
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  /* Close Button Icon */
+  .close-button::before {
+    content: '×';
+  }
+  
+  .level-indicator {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: #fff;
 }

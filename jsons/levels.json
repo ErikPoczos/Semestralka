@@ -89,11 +89,9 @@
       {
         "name": "Level 5",
         "obstacles": [
-          {"x": 10, "y": 0, "width": 80, "height": 50},
-          {"x": 20, "y": 7, "width": 20, "height": 20},
-          {"x": 30, "y": 7, "width": 20, "height": 20},
-          {"x": 20, "y": 0, "width": 20, "height": 20}
-    
+          {"x": 10, "y": 0, "width": 80, "height": 40},
+          {"x": 20, "y": 10, "width": 20, "height": 20},
+          {"x": 30, "y": 10, "width": 20, "height": 30}    
         ],
         "coins": [
           { 
@@ -102,7 +100,7 @@
           },
           {
             "radius": 10,
-            "position": {"x": 42, "y": 70}
+            "position": {"x": 42, "y": 65}
           },
           { "radius": 10,
             "position": { "x": 95, "y": 15 }

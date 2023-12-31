@@ -36,6 +36,8 @@ startButton.addEventListener('click', () => {
         resetGame();
     } else {
         isGameRunning = true;
+        document.body.style.backgroundColor = 'lightgray'; // Change this to your desired color
+        gameContainer.style.backgroundColor = '#f0f0f0';
     }
 });
 
@@ -330,6 +332,9 @@ function loadLevel(levelIndex) {
                 initialBallY = (spawn.y / 100) * gameContainer.clientHeight;
             }
 
+            const levelIndicator = document.getElementById('levelIndicator');
+            levelIndicator.textContent = `Level ${currentLevel + 1}`;
+
             resetBall();
             updateHitPoints();
         })
@@ -348,6 +353,11 @@ function nextLevel(){
 
     obstacles.forEach(obstacle => obstacle.remove());
     obstacles = [];
+
+    if (currentLevel == 5){
+        winnerLastModal();
+        return;
+    }
     
     loadLevel(currentLevel);
     isGameRunning = false;
@@ -415,48 +425,89 @@ function showWinnerModal() {
     document.querySelector('.modal-content').appendChild(continueButton);
 }
 
+function winnerLastModal() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+
+    const winnerModal = document.createElement('div');
+    winnerModal.className = 'winner-modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const modalText = document.createElement('p');
+    modalText.textContent = 'Congratulations! You won the game.';
+
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Reset to Level 1';
+    resetButton.addEventListener('click', resetToLevel1);
+
+    modalContent.appendChild(modalText);
+    modalContent.appendChild(resetButton);
+
+    winnerModal.appendChild(modalContent);
+    modalOverlay.appendChild(winnerModal);
+    document.body.appendChild(modalOverlay);
+}
+
+function resetToLevel1() {
+    localStorage.removeItem("currentLevel")
+    currentLevel = 0;
+    resetGame();
+}
+
+
 function showGameRules() {
     isGameRunning = false;
 
-    const modalContent = `
-        GAME RULES:
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
 
-        Objective:
-        Navigate through the levels, collect gold coins, and complete the game with the highest score.
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
 
-        How to Play:
-        1. Click "Start Game" to begin your rolling ball adventure.
-        2. Use the arrow keys (W, A, S, D) to control the movement of the ball:
-           - W: Move Up
-           - A: Move Left
-           - S: Move Down
-           - D: Move Right
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content game-rules-modal';
 
-        Game Elements:
-        - Gold Coins: Collect gold coins to score points and progress through the levels.
-        - Hearts: You start the game with 5 hearts. Each time you hit a wall, you lose 1 heart. If you run out of hearts, the game ends.
-        - Walls: Avoid colliding with walls to prevent losing hearts.
+    modalContent.innerHTML = `
+        <h2>GAME RULES</h2>
 
-        Levels:
-        The game consists of 5 levels, each with increasing difficulty. Reach the end of each level to unlock the next one.
+        <h3>Objective:</h3>
+        <p>Navigate through the levels, collect gold coins, and complete every single level.</p>
+        
+        <h3>How to Play:</h3>
+        <ul>
+            <li>Click "Start Game" to begin your rolling ball adventure.</li>
+            <li>After clicking on "Start Game" background of the game will change to Grey and that means that your ball is now moving.</li>
+            <li>PC: Use the arrow keys (W, A, S, D) to control the movement of the ball.</li>
+            <li>Mobile device: Tilt your mobile device to control the movement of the ball.</li>
+        <ul>
 
-        Scoring:
-        - Collect gold coins to increase your score.
-        - Complete levels as quickly as possible for bonus points.
+        <h3>Game Elements:</h3>
+        <ul>
+            <li>Gold Coins: Collect gold coins and progress through the levels.</li>
+            <li>Hearts: You start the game with 5 hearts. Each time you hit a wall, you lose 1 heart. If you run out of hearts, the game ends.</li>
+            <li>Walls: Avoid colliding with walls to prevent losing hearts.</li>
+        </ul>
+        
+        <h3>Levels:</h3>
+        <p>The game consists of 5 levels, each with increasing difficulty. Reach the end of each level to unlock the next one.</p>
 
-        Winning:
-        Finish all 5 levels to win the game. The quicker you complete each level and the more gold coins you collect, the higher your final score.
-
-        Losing:
-        You lose the game if you run out of hearts. Colliding with walls deducts 1 heart.
-
-        Tips:
-        - Plan your movements to avoid hitting walls.
-        - Collect as many gold coins as possible for a higher score.
-        - Complete levels swiftly for bonus points.
-
-        Good luck on your Rolling Ball Adventure!
+        <h3>Winning:</h3>
+        <p>Finish all 5 levels to win the game.</p>
+        
+        <p>Good luck on your Rolling Ball Adventure!</p>
+        
     `;
 
-    createModal(modalContent, 'Close', hideGameRules);
+    const actionButton = document.createElement('button');
+    actionButton.textContent = 'Close';
+    actionButton.addEventListener('click', hideGameRules);
+
+    modalContent.appendChild(actionButton);
+    modal.appendChild(modalContent);
+    modalOverlay.appendChild(modal);
+    document.body.appendChild(modalOverlay);
 }
+
+
