@@ -36,7 +36,7 @@ startButton.addEventListener('click', () => {
         resetGame();
     } else {
         isGameRunning = true;
-        document.body.style.backgroundColor = 'lightgray'; // Change this to your desired color
+        document.body.style.backgroundColor = 'lightgray';
         gameContainer.style.backgroundColor = '#f0f0f0';
     }
 });
@@ -154,6 +154,8 @@ function resetGame() {
     loadLevel(currentLevel);
 
     resetBall();
+    document.body.style.backgroundColor = 'white';
+
 }
 
 function resetBall() {
@@ -343,9 +345,9 @@ function loadLevel(levelIndex) {
 
 function nextLevel(){
     localStorage.removeItem('currentLevel', currentLevel);
-    resetBall();
 
     currentLevel++;
+    hitPoints = 5;
     localStorage.setItem('currentLevel', currentLevel);
 
     resetKeys();
@@ -360,6 +362,8 @@ function nextLevel(){
     }
     
     loadLevel(currentLevel);
+    document.body.style.backgroundColor = 'white';
+
     isGameRunning = false;
 }
 
