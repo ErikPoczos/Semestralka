@@ -1,113 +1,102 @@
 {
-    "levels": [
-      {
-        "name": "Level 1",
-        "obstacles": [
-          {"x": 10, "y": 10, "width": 80, "height": 30},
-          {"x": 10, "y": 40, "width": 20, "height": 20},
-          {"x": 70, "y": 20, "width": 20, "height": 20}
-        ],
-        "coins": [
-          { 
-            "radius": 10,
-            "position": {"x": 5, "y": 5}
-          },
-          {
-            "radius": 10,
-            "position": {"x": 95, "y": 5}
-          },
-          { "radius": 10,
-            "position": { "x": 50, "y": 80 }
-          }
-        ],
-        "spawn": [{"x": 50, "y": 50}]
-      },
-      {
-        "name": "Level 2",
-        "obstacles": [
-          {"x": 10, "y": 10, "width": 80, "height": 30},
-          {"x": 10, "y": -10, "width": 20, "height": 50},
-          {"x": 70, "y": -40, "width": 20, "height": 50}
-        ],
-        "coins": [
-          { 
-            "radius": 10,
-            "position": {"x": 4, "y": 35}
-          },
-          {
-            "radius": 10,
-            "position": {"x": 94, "y": 75}
-          },
-          { "radius": 10,
-            "position": { "x": 50, "y": 50 }
-          }
-        ],
-        "spawn": [{"x": 40, "y": 80}]
-      },
-      {
-        "name": "Level 3",
-        "obstacles": [
-          {"x": 10, "y": 10, "width": 10, "height": 10},
-          {"x": 20, "y": 20, "width": 65, "height": 50}
-        ],
-        "coins": [
-          { 
-            "radius": 10,
-            "position": {"x": 20, "y": 23}
-          },
-          {
-            "radius": 10,
-            "position": {"x": 92, "y": 40}
-          },
-          { "radius": 10,
-            "position": { "x": 60, "y": 92 }
-          }
-        ],
-        "spawn": [{"x": 3, "y": 3}]
-      },
-      {
-        "name": "Level 4",
-        "obstacles": [
-          {"x": 10, "y": 10, "width": 30, "height": 80},
-          {"x": 60, "y": -70, "width": 30, "height": 80}
-        ],
-        "coins": [
-          { 
-            "radius": 10,
-            "position": {"x": 5, "y": 50}
-          },
-          {
-            "radius": 10,
-            "position": {"x": 50, "y": 50}
-          },
-          { "radius": 10,
-            "position": { "x": 94, "y": 50 }
-          }
-        ],
-        "spawn": [{"x": 23, "y": 3}]
-      },
-      {
-        "name": "Level 5",
-        "obstacles": [
-          {"x": 10, "y": 0, "width": 80, "height": 40},
-          {"x": 20, "y": 10, "width": 20, "height": 20},
-          {"x": 30, "y": 10, "width": 20, "height": 30}    
-        ],
-        "coins": [
-          { 
-            "radius": 10,
-            "position": {"x": 25, "y": 83}
-          },
-          {
-            "radius": 10,
-            "position": {"x": 42, "y": 65}
-          },
-          { "radius": 10,
-            "position": { "x": 95, "y": 15 }
-          }
-        ],
-        "spawn": [{"x": 3, "y": 3}]
-      }
-    ]
-  }
-  
+  "levels": [
+    {
+      "name": "Level 1",
+      "obstacles": [
+        { "x": 10, "y": 10, "width": 80, "height": 30 },
+        { "x": 10, "y": 40, "width": 20, "height": 20 },
+        { "x": 70, "y": 20, "width": 20, "height": 20 }
+      ],
+      "coins": [
+        {
+          "radius": 10,
+          "position": { "x": 5, "y": 5 }
+        },
+        {
+          "radius": 10,
+          "position": { "x": 95, "y": 5 }
+        },
+        { "radius": 10, "position": { "x": 50, "y": 80 } }
+      ],
+      "spawn": [{ "x": 50, "y": 50 }]
+    },
+    {
+      "name": "Level 2",
+      "obstacles": [
+        { "x": 10, "y": 10, "width": 80, "height": 30 },
+        { "x": 10, "y": -10, "width": 20, "height": 50 },
+        { "x": 70, "y": -40, "width": 20, "height": 50 }
+      ],
+      "coins": [
+        {
+          "radius": 10,
+          "position": { "x": 4, "y": 35 }
+        },
+        {
+          "radius": 10,
+          "position": { "x": 94, "y": 75 }
+        },
+        { "radius": 10, "position": { "x": 50, "y": 50 } }
+      ],
+      "spawn": [{ "x": 40, "y": 80 }]
+    },
+    {
+      "name": "Level 3",
+      "obstacles": [
+        { "x": 10, "y": 10, "width": 10, "height": 10 },
+        { "x": 20, "y": 20, "width": 65, "height": 50 }
+      ],
+      "coins": [
+        {
+          "radius": 10,
+          "position": { "x": 20, "y": 23 }
+        },
+        {
+          "radius": 10,
+          "position": { "x": 92, "y": 40 }
+        },
+        { "radius": 10, "position": { "x": 60, "y": 92 } }
+      ],
+      "spawn": [{ "x": 3, "y": 3 }]
+    },
+    {
+      "name": "Level 4",
+      "obstacles": [
+        { "x": 10, "y": 10, "width": 30, "height": 80 },
+        { "x": 60, "y": -70, "width": 30, "height": 80 }
+      ],
+      "coins": [
+        {
+          "radius": 10,
+          "position": { "x": 5, "y": 50 }
+        },
+        {
+          "radius": 10,
+          "position": { "x": 50, "y": 50 }
+        },
+        { "radius": 10, "position": { "x": 94, "y": 50 } }
+      ],
+      "spawn": [{ "x": 23, "y": 3 }]
+    },
+    {
+      "name": "Level 5",
+      "obstacles": [
+        { "x": 10, "y": 0, "width": 80, "height": 40 },
+        { "x": 20, "y": 10, "width": 20, "height": 20 },
+        { "x": 30, "y": 10, "width": 20, "height": 30 }
+      ],
+      "coins": [
+        {
+          "radius": 10,
+          "position": { "x": 25, "y": 83 }
+        },
+        {
+          "radius": 10,
+          "position": { "x": 42, "y": 65 }
+        },
+        { "radius": 10, "position": { "x": 95, "y": 15 } }
+      ],
+      "spawn": [{ "x": 3, "y": 3 }]
+    }
+  ]
+}
