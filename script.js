@@ -43,7 +43,6 @@ startButton.addEventListener("click", () => {
 
 // Gyroscope
 if (window.DeviceOrientationEvent) {
-  // Add event listener for device orientation change
   window.addEventListener("deviceorientation", handleOrientation);
   gyroscopeActive = true;
 } else {
@@ -51,11 +50,9 @@ if (window.DeviceOrientationEvent) {
 }
 
 function handleOrientation(event) {
-  // Extract rotation data
-  beta = event.beta; // rotation around x-axis
-  gamma = event.gamma; // rotation around y-axis
+  beta = event.beta;
+  gamma = event.gamma;
 
-  // Move the ball based on gyroscope data
   moveBall();
 }
 
@@ -105,12 +102,10 @@ function moveBall() {
     Math.min(ballY, gameContainer.clientHeight - ball.clientHeight)
   );
 
-  // Check if the ball hits the top or bottom bounds
   if (ballY <= 0 || ballY >= gameContainer.clientHeight - ball.clientHeight) {
     ballSpeedY = 0;
   }
 
-  // Check if the ball hits the left or right wall
   if (ballX <= 0 || ballX >= gameContainer.clientWidth - ball.clientWidth) {
     ballSpeedX = 0;
   }
@@ -143,10 +138,8 @@ function reverseBallDirection() {
   ballSpeedY = -ballSpeedY;
 }
 
-// Movement update interval
 setInterval(moveBall, 16);
 
-// Reset related functions
 function resetGame() {
   const modalOverlay = document.querySelector(".modal-overlay");
   modalOverlay.remove();
