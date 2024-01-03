@@ -445,6 +445,9 @@ function winnerLastModal() {
   const modalOverlay = document.createElement("div");
   modalOverlay.className = "modal-overlay";
 
+  const modal = document.createElement("div");
+  modal.className = "custom-modal";
+
   const winnerModal = document.createElement("div");
   winnerModal.className = "winner-modal";
 

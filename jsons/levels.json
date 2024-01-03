@@ -14,7 +14,7 @@
         },
         {
           "radius": 10,
-          "position": { "x": 95, "y": 5 }
+          "position": { "x": 92, "y": 5 }
         },
         { "radius": 10, "position": { "x": 50, "y": 80 } }
       ],
@@ -30,11 +30,11 @@
       "coins": [
         {
           "radius": 10,
-          "position": { "x": 4, "y": 35 }
+          "position": { "x": 2, "y": 35 }
         },
         {
           "radius": 10,
-          "position": { "x": 94, "y": 75 }
+          "position": { "x": 91, "y": 75 }
         },
         { "radius": 10, "position": { "x": 50, "y": 50 } }
       ],
@@ -53,7 +53,7 @@
         },
         {
           "radius": 10,
-          "position": { "x": 92, "y": 40 }
+          "position": { "x": 90, "y": 40 }
         },
         { "radius": 10, "position": { "x": 60, "y": 92 } }
       ],
@@ -68,33 +68,33 @@
       "coins": [
         {
           "radius": 10,
-          "position": { "x": 5, "y": 50 }
+          "position": { "x": 2, "y": 50 }
         },
         {
           "radius": 10,
           "position": { "x": 50, "y": 50 }
         },
-        { "radius": 10, "position": { "x": 94, "y": 50 } }
+        { "radius": 10, "position": { "x": 93, "y": 50 } }
       ],
       "spawn": [{ "x": 23, "y": 3 }]
     },
     {
       "name": "Level 5",
       "obstacles": [
-        { "x": 10, "y": 0, "width": 80, "height": 40 },
+        { "x": 20, "y": 0, "width": 60, "height": 40 },
         { "x": 20, "y": 10, "width": 20, "height": 20 },
         { "x": 30, "y": 10, "width": 20, "height": 30 }
       ],
       "coins": [
         {
           "radius": 10,
-          "position": { "x": 25, "y": 83 }
+          "position": { "x": 20, "y": 83 }
         },
         {
           "radius": 10,
           "position": { "x": 42, "y": 65 }
         },
-        { "radius": 10, "position": { "x": 95, "y": 15 } }
+        { "radius": 10, "position": { "x": 90, "y": 15 } }
       ],
       "spawn": [{ "x": 3, "y": 3 }]
     }
