@@ -41,6 +41,14 @@ startButton.addEventListener("click", () => {
   }
 });
 
+const printBtn = document.getElementById("print");
+
+printBtn.addEventListener("click", function() {
+  showGameRules();
+  print();
+  hideGameRules();
+})
+
 // Gyroscope
 if (window.DeviceOrientationEvent) {
   window.addEventListener("deviceorientation", handleOrientation);
