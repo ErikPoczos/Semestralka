@@ -1,9 +1,0 @@
-@media print {
-    .ui {
-      display: none !important;
-    }
-
-    button {
-      display: none;
-    }
-  }

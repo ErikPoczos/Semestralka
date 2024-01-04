@@ -41,14 +41,6 @@ startButton.addEventListener("click", () => {
   }
 });
 
-const printBtn = document.getElementById("print");
-
-printBtn.addEventListener("click", function() {
-  showGameRules();
-  print();
-  hideGameRules();
-})
-
 // Gyroscope
 if (window.DeviceOrientationEvent) {
   window.addEventListener("deviceorientation", handleOrientation);
@@ -534,4 +526,14 @@ function showGameRules() {
   modal.appendChild(modalContent);
   modalOverlay.appendChild(modal);
   document.body.appendChild(modalOverlay);
+}
+
+window.onbeforeprint = beforePrintHandler;
+window.onafterprint = afterPrintHandler;
+function beforePrintHandler() {
+  showGameRules();
+}
+
+function afterPrintHandler() {
+  hideGameRules();
 }
