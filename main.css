@@ -166,3 +166,9 @@ button:hover {
   background-color: #3498db;
   color: #fff;
 }
+
+@media print {
+  .ui {
+    display: none; 
+  }
+}
